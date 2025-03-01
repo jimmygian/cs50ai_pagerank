@@ -11,11 +11,10 @@ def main():
     if len(sys.argv) != 2:
         sys.exit("Usage: python pagerank.py corpus")
     corpus = crawl(sys.argv[1])
-    transition_model(corpus, page='1.html', damping_factor=DAMPING)
-    # ranks = sample_pagerank(corpus, DAMPING, SAMPLES)
-    # print(f"PageRank Results from Sampling (n = {SAMPLES})")
-    # for page in sorted(ranks):
-    #     print(f"  {page}: {ranks[page]:.4f}")
+    ranks = sample_pagerank(corpus, DAMPING, SAMPLES)
+    print(f"PageRank Results from Sampling (n = {SAMPLES})")
+    for page in sorted(ranks):
+        print(f"  {page}: {ranks[page]:.4f}")
     # ranks = iterate_pagerank(corpus, DAMPING)
     # print(f"PageRank Results from Iteration")
     # for page in sorted(ranks):
@@ -58,22 +57,29 @@ def transition_model(corpus, page, damping_factor):
     linked to by `page`. With probability `1 - damping_factor`, choose
     a link at random chosen from all pages in the corpus.
     """
-    # Create variable for return dict
     TM = dict()
+    N = len(corpus)  # Total number of pages
 
-    # Get number of available pages
-    N = len(corpus.keys())
+    # Get probability of random choice (1 page out of all N pages)
+    random_choice = (1 / N) * (1 - damping_factor)
 
-    # Get probability of random choice (1 page out of all N) * (the rest of the damping factor)
-    ranodm_choice = TM[page] = (1 / N) * (1 - damping_factor)
+    # Get the outgoing links of the current page
+    outgoing_links = corpus[page]
 
-    for potential_next_page in corpus:
-        if potential_next_page != page:
-            # Calculate and store this page's probability 
-                # (1 out of all possible pages minus the one we are currently in) * the damping factore 
-                # PLUS also add the random_choice's value since random choice is calculated for each page.
-            TM[potential_next_page] = 1/(N - 1) * damping_factor + ranodm_choice
-           
+    if len(outgoing_links) == 0:
+        # If there are no outgoing links, consider all pages as equal choice
+        for potential_next_page in corpus:
+            TM[potential_next_page] = random_choice
+    else:
+        # If there are outgoing links, distribute the damping factor over them
+        for potential_next_page in corpus:
+            if potential_next_page in outgoing_links:
+                # The page has an outgoing link to this page
+                TM[potential_next_page] = (1 / len(outgoing_links)) * damping_factor + random_choice
+            else:
+                # Otherwise, it's just the random choice
+                TM[potential_next_page] = random_choice
+
     return TM
 
 
@@ -86,11 +92,36 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
+    # Choose a page at random to start with
+    page_visited = random.choice(list(corpus.keys()))
+    visited_count = dict()
 
-    # Choose a page at random
-    # TODO
+    # Repeat for n samples
+    for _ in range(n):
+        # Increment visit count for the current page
+        if page_visited not in visited_count:
+            visited_count[page_visited] = 1
+        else:
+            visited_count[page_visited] += 1
 
-    raise NotImplementedError
+        # Get the transition model probabilities for the current page
+        TM = transition_model(corpus, page_visited, damping_factor)
+        
+        # Get next random page based on the probabilities
+        TM_pages = list(TM.keys())
+        TM_values = list(TM.values())
+        
+        next_page = random.choices(TM_pages, weights=TM_values)[0]
+        
+        # Update the page visited
+        page_visited = next_page
+
+    # Normalize the visited count to estimate PageRank
+    total_visits = sum(visited_count.values())
+    for page in visited_count:
+        visited_count[page] /= total_visits  # Normalize so the values sum to 1
+    
+    return visited_count
 
 
 def iterate_pagerank(corpus, damping_factor):
