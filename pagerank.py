@@ -11,14 +11,15 @@ def main():
     if len(sys.argv) != 2:
         sys.exit("Usage: python pagerank.py corpus")
     corpus = crawl(sys.argv[1])
-    ranks = sample_pagerank(corpus, DAMPING, SAMPLES)
-    print(f"PageRank Results from Sampling (n = {SAMPLES})")
-    for page in sorted(ranks):
-        print(f"  {page}: {ranks[page]:.4f}")
-    ranks = iterate_pagerank(corpus, DAMPING)
-    print(f"PageRank Results from Iteration")
-    for page in sorted(ranks):
-        print(f"  {page}: {ranks[page]:.4f}")
+    transition_model(corpus, page='1.html', damping_factor=DAMPING)
+    # ranks = sample_pagerank(corpus, DAMPING, SAMPLES)
+    # print(f"PageRank Results from Sampling (n = {SAMPLES})")
+    # for page in sorted(ranks):
+    #     print(f"  {page}: {ranks[page]:.4f}")
+    # ranks = iterate_pagerank(corpus, DAMPING)
+    # print(f"PageRank Results from Iteration")
+    # for page in sorted(ranks):
+    #     print(f"  {page}: {ranks[page]:.4f}")
 
 
 def crawl(directory):
@@ -57,7 +58,23 @@ def transition_model(corpus, page, damping_factor):
     linked to by `page`. With probability `1 - damping_factor`, choose
     a link at random chosen from all pages in the corpus.
     """
-    raise NotImplementedError
+    # Create variable for return dict
+    TM = dict()
+
+    # Get number of available pages
+    N = len(corpus.keys())
+
+    # Get probability of random choice (1 page out of all N) * (the rest of the damping factor)
+    ranodm_choice = TM[page] = (1 / N) * (1 - damping_factor)
+
+    for potential_next_page in corpus:
+        if potential_next_page != page:
+            # Calculate and store this page's probability 
+                # (1 out of all possible pages minus the one we are currently in) * the damping factore 
+                # PLUS also add the random_choice's value since random choice is calculated for each page.
+            TM[potential_next_page] = 1/(N - 1) * damping_factor + ranodm_choice
+           
+    return TM
 
 
 def sample_pagerank(corpus, damping_factor, n):
@@ -69,6 +86,10 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
+
+    # Choose a page at random
+    # TODO
+
     raise NotImplementedError
 
 

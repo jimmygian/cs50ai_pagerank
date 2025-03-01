@@ -1,6 +1,6 @@
-# CS50AI | Lecture 2 - Uncertainty | Project 1 - [`PageRank`](https://cs50.harvard.edu/ai/2024/projects/2/pagerank/)
+# CS50AI | Lecture 2 - Uncertainty | Project 2A - [`PageRank`](https://cs50.harvard.edu/ai/2024/projects/2/pagerank/)
 
-This project is a mandatory assignment from **CS50AI – Lecture 1=2: "Uncertainty"**.
+This project is a mandatory assignment from **CS50AI – Lecture 2: "Uncertainty"**.
 
 ### 📌 Usage
 
